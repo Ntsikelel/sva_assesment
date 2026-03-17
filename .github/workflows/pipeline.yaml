@@ -22,16 +22,16 @@ jobs:
           role-to-assume: arn:aws:iam::767398146991:role/sva-gha-role
           aws-region: eu-west-2
       - uses: hashicorp/setup-terraform@v3
-      - run: terraform -chdir=terraform init
-      - run: terraform -chdir=terraform validate
-      - run: terraform -chdir=terraform fmt -check
+      - run: terraform  init
+      - run: terraform  validate
+      - run: terraform  fmt -check
       - name: Terraform Plan
         if: github.event_name == 'pull_request'
-        run: terraform -chdir=terraform plan
+        run: terraform  plan
         
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: terraform -chdir=terraform apply -auto-approve
+        run: terraform  apply -auto-approve
 
   ansible:
     needs: terraform
