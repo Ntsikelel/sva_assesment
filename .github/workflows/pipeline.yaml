@@ -12,13 +12,8 @@ on:
 jobs:
   terraform:
     runs-on: ubuntu-latest
-
     env:
       TF_VERSION: 1.9.5 
-
-
-  terraform:
-    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: hashicorp/setup-terraform@v3
