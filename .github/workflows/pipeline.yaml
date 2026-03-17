@@ -1,5 +1,4 @@
 name: Senior Verivication Assesment 
-
 on:
   push:
     branches:
@@ -12,8 +11,6 @@ on:
 jobs:
   terraform:
     runs-on: ubuntu-latest
-    env:
-      TF_VERSION: 1.9.5 
     steps:
       - uses: actions/checkout@v4
       - uses: hashicorp/setup-terraform@v3
