@@ -1,36 +1,50 @@
-name: Senior Verivication Assesment 
+name: Senior Verification Assessment
+
 on:
   push:
-    branches:
-      - main
-        develop
+    branches: [main, develop]
   pull_request:
-    branches:
-      - main
-        develop
+    branches: [main, develop]
+
+permissions:
+  id-token: write
+  contents: read  
+
 jobs:
   terraform:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::767398146991:role/sva-role
+          aws-region: eu-west-2
       - uses: hashicorp/setup-terraform@v3
       - run: terraform -chdir=terraform init
       - run: terraform -chdir=terraform validate
       - run: terraform -chdir=terraform fmt -check
-      - if: github.event_name == 'pull_request'
+      - name: Terraform Plan
+        if: github.event_name == 'pull_request'
         run: terraform -chdir=terraform plan
-      - if: github.ref == 'refs/heads/main'
-        uses: aws-actions/configure-aws-credentials@v4
-        with: { role-to-assume: arn:aws:iam::767398146991:role/sva-role, aws-region: eu-west-2 }
-      - if: github.ref == 'refs/heads/main'
+        
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: terraform -chdir=terraform apply -auto-approve
+
   ansible:
     needs: terraform
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: aws-actions/configure-aws-credentials@v4
-        with: { role-to-assume: arn:aws:iam::767398146991:role/sva-role, aws-region: eu-west-2 }
-      - run: pip install ansible
-      - run: ansible-playbook -i ansible/inventory.yml
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::767398146991:role/sva-role
+          aws-region: eu-west-2
+      - name: Install Ansible
+        run: pip install ansible
+      - name: Run Playbook
+        run: ansible-playbook -i ansible/inventory.yml
