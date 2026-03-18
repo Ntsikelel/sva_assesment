@@ -12,6 +12,16 @@ provider "aws" {
   region = "eu-west-2"
 }
 
+terraform {
+  backend "s3" {
+    bucket         = "sva-state-bucket"
+    key            = "dev/terraform.tfstate"
+    region         = "eu-west-2"            
+    dynamodb_table = "sva-terraform-locks"
+    encrypt        = true                           
+  }
+}
+
 data "aws_ami" "sva_ubuntu" {
   most_recent = true
   owners      = ["099720109477"]
