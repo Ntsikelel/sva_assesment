@@ -12,7 +12,20 @@ provider "aws" {
   region = "eu-west-2"
 }
 
+data "aws_ami" "sva_ubuntu" {
+  most_recent = true
+  owners      = ["099720109477"]
 
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+}
 
 resource "aws_lb" "sva_lb" {
 
@@ -20,7 +33,7 @@ resource "aws_lb" "sva_lb" {
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.sva_alb_sg.id]
-  subnets            = [aws_subnet.private_sbn_1a.id]
+  subnets            = [aws_subnet.private_sbn_1a.id, aws_subnet.private_sbn_1b.id]
 
 }
 
@@ -37,7 +50,7 @@ resource "aws_lb_target_group" "sva_tg" {
     path                = "/"
     healthy_threshold   = 3
     unhealthy_threshold = 3
-    timeout             = 30
+    timeout             = 10
   }
 
   tags = {
@@ -183,8 +196,8 @@ resource "aws_autoscaling_group" "sva_asg" {
 resource "aws_launch_template" "sva_dev" {
 
   name_prefix   = "sva_vm_"
-  image_id      = "ami-0c02fb55956c7d316"
-  instance_type = "t2.micro"
+  image_id      = data.aws_ami.sva_ubuntu.id
+  instance_type = "t3.micro"
   iam_instance_profile {
     name = aws_iam_instance_profile.sva_profile.name
   }
@@ -210,9 +223,30 @@ resource "aws_launch_template" "sva_dev" {
 }
 
 
-# resource "aws_internet_gateway" "sva_igw" { vpc_id = aws_vpc.sva_task_vpc.id }
-# resource "aws_route_table" "sva_public" { vpc_id = aws_vpc.sva_task_vpc.id
-#  route { cidr_block = "0.0.0.0/0" = aws_internet_gateway.sva_igw.id } 
-#  }
-# resource "aws_route_table_association" "public" { subnet_id = aws_subnet.public.id; route_table_id = aws_route_table.public.id }
+resource "aws_internet_gateway" "sva_igw" {
+  vpc_id = aws_vpc.sva_task_vpc.id
+
+
+  tags = {
+    Name             = "sva_igw"
+    Enviroment       = "developement"
+    Cost_Center      = "web-system-sva"
+    Cost_Center_Code = "0001"
+    Service_Name     = "web-api-sva"
+    Owner            = "dev_sva_ntsikelelo_metseeme"
+  }
+}
+# resource "aws_route_table" "sva_public" {
+#   vpc_id = aws_vpc.sva_task_vpc.id
+
+#   route {
+#     cidr_block = "0.0.0.0/0"
+#     gateway_id = aws_internet_gateway.sva_igw.id
+#   }
+# }
+
+# resource "aws_route_table_association" "sva_public" {
+#   subnet_id      = aws_subnet.sva_public.id
+#   route_table_id = aws_route_table.sva_public.id
+# }
 
