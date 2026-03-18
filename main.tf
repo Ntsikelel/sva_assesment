@@ -143,7 +143,7 @@ resource "aws_autoscaling_group" "sva_asg" {
   desired_capacity = 1
   max_size         = 2
   min_size         = 1
-  name = "sva_asg_ntsikelelo_metseeme"
+  name = "sva-asg-ntsikelelo-metseeme"
 
   vpc_zone_identifier = [aws_subnet.private_sbn_1a.id]
   target_group_arns   = [aws_lb_target_group.sva_tg.arn]
