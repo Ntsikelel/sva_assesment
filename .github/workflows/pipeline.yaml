@@ -42,7 +42,7 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::767398146991:role/sva-role
+          role-to-assume: arn:aws:iam::767398146991:role/sva-gha-role
           aws-region: eu-west-2
       - name: Install Ansible
         run: pip install ansible
