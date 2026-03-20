@@ -41,7 +41,7 @@ resource "aws_lb" "sva_lb" {
 
   name               = "sva-lb"
   internal           = false
-  load_balancer_type = "network"
+  load_balancer_type = "application"
   security_groups    = [aws_security_group.sva_alb_sg.id]
   subnets            = [aws_subnet.private_sbn_1a.id, aws_subnet.private_sbn_1b.id]
 
