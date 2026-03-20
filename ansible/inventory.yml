@@ -1,0 +1,16 @@
+plugin: amazon.aws.aws_ec2
+regions:
+  - eu-west-2
+filters:
+  tag:Name: sva_vm_instance
+  instance-state-name: running
+hostnames:
+  - instance-id
+  # - private-ip-address
+compose:
+  ansible_host: private_ip_address
+  ansible_connection: aws_ssm
+  ansible_aws_ssm_region: eu-west-2
+# keyed_groups:
+#   - key: tags.Name
+#     prefix: Name
