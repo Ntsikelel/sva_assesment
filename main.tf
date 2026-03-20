@@ -41,7 +41,7 @@ resource "aws_lb" "sva_lb" {
 
   name               = "sva-lb"
   internal           = false
-  load_balancer_type = "application"
+  load_balancer_type = "network"
   security_groups    = [aws_security_group.sva_alb_sg.id]
   subnets            = [aws_subnet.private_sbn_1a.id, aws_subnet.private_sbn_1b.id]
 
@@ -138,7 +138,7 @@ resource "aws_ssm_parameter" "sva_secret" {
   name        = "/APP_SECRET"
   description = "Connect Web UI APP_SECRET"
   type        = "SecureString"
-  value       = var.sva_secret
+  value       = tls_private_key.sva_ssh_key.private_key_pem
   tags = {
     Name             = "sva_secret"
     Enviroment       = "developement"
@@ -208,6 +208,8 @@ resource "aws_launch_template" "sva_dev" {
   name_prefix   = "sva_vm_"
   image_id      = data.aws_ami.sva_ubuntu.id
   instance_type = "t3.micro"
+  # key_name      = aws_key_pair.sva_public_key.key_name
+
   iam_instance_profile {
     name = aws_iam_instance_profile.sva_profile.name
   }
@@ -246,7 +248,24 @@ resource "aws_internet_gateway" "sva_igw" {
     Owner            = "dev_sva_ntsikelelo_metseeme"
   }
 }
-# resource "aws_route_table" "sva_public" {
+
+resource "tls_private_key" "sva_ssh_key" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
+resource "local_sensitive_file" "sva_private_key" {
+  filename             = pathexpand("~/.ssh/sva_pem.pem")
+  file_permission      = "600"
+  directory_permission = "700"
+  content              = tls_private_key.sva_ssh_key.private_key_pem
+}
+
+resource "aws_key_pair" "sva_public_key" {
+  key_name   = "sva_key"
+  public_key = tls_private_key.sva_ssh_key.public_key_openssh
+}
+
+# resource "aws_route_table" "sva_public_rt" {
 #   vpc_id = aws_vpc.sva_task_vpc.id
 
 #   route {
@@ -255,8 +274,9 @@ resource "aws_internet_gateway" "sva_igw" {
 #   }
 # }
 
-# resource "aws_route_table_association" "sva_public" {
-#   subnet_id      = aws_subnet.sva_public.id
-#   route_table_id = aws_route_table.sva_public.id
+# resource "aws_route_table_association" "sva_public_rta" {
+#   subnet_id      = [aws_subnet.private_sbn_1a.id, aws_subnet.private_sbn_1b.id]
+#   route_table_id = aws_route_table.sva_public_rt.id
 # }
+
 

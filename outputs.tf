@@ -13,3 +13,8 @@ output "sva_ubuntu_ami_id" {
   description = "Latest Ubuntu 22.04 image for Web UI Server:  "
   value       = data.aws_ami.sva_ubuntu.id
 }
+
+output "ssh_private_key" {
+  value     = tls_private_key.sva_ssh_key.private_key_pem
+  sensitive = true
+}

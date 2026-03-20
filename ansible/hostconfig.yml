@@ -1,13 +1,10 @@
 ---
 - hosts: all
   become: true
+  gather_facts: false
   tasks:
     - yum: { name: "*", state: latest }
     - yum: { name: [nginx, awscli, amazon-cloudwatch-agent], state: present }
-    # - file: { path: /var/app, state: directory }
-    # - shell: aws ssm get-parameter --name /sva/APP_SECRET --with-decryption --query 'Parameter.Value' --output text > /var/app/secret.txt
-    #   args: { creates: /var/app/secret.txt }
-    # - file: { path: /var/app/secret.txt, mode: '0600' }
     - copy: { content: '{"service":"sva_ntsikelelo_metseeme","status":"ok","commit":"unknown","region":"eu-west-2"}', dest: /usr/share/nginx/html/health.json }
     - copy:
         content: |
