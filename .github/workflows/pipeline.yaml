@@ -49,4 +49,4 @@ jobs:
       - name: Run collection Install 
         run: ansible-galaxy collection install amazon.aws:==5.5.0 --force
       - name: Run Playbook
-        run: ansible-playbook -i ansible/inventory.yml ansible/hostconfig.yml
+        run: ansible-playbook -i ansible/inventory.aws_ec2.yml ansible/hostconfig.yml
