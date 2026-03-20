@@ -5,8 +5,9 @@ filters:
   tag:Name: sva_vm_instance
   instance-state-name: running
 hostnames:
-  - instance-id
+  - private_ip_address
 compose:
   ansible_host: private_ip_address
-  ansible_connection: aws_ssm
+  ansible_connection: amazon.aws.aws_ssm
   ansible_aws_ssm_region: eu-west-2
+  ansible_aws_ssm_bucket_name: sva-state-bucket
